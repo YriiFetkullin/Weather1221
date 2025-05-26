@@ -9,8 +9,6 @@ import SwiftUI
 
 struct WeatherView: View {
     @StateObject private var viewModel = WeatherViewModel()
-    @State private var city: String = "Москва"
-    @State private var inputError: String?
 
     var body: some View {
         NavigationView {
@@ -19,15 +17,15 @@ struct WeatherView: View {
                     .ignoresSafeArea()
                 VStack {
                     HStack {
-                        TextField("Введите город", text: $city)
+                        TextField("Введите город", text: $viewModel.city)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .padding(.horizontal)
                             .onSubmit {
-                                loadWeatherIfValid()
+                                viewModel.loadWeatherIfValid()
                             }
 
                         Button(action: {
-                            loadWeatherIfValid()
+                            viewModel.loadWeatherIfValid()
                         }) {
                             Image(systemName: "magnifyingglass")
                                 .padding(.trailing)
@@ -35,7 +33,7 @@ struct WeatherView: View {
                     }
                     .padding(.top)
 
-                    if let inputError = inputError {
+                    if let inputError = viewModel.inputError {
                         Text(inputError)
                             .foregroundColor(.red)
                             .font(.caption)
@@ -55,21 +53,23 @@ struct WeatherView: View {
                         List(viewModel.forecast) { day in
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(day.date)
+                                    Text(viewModel.dateText(for: day))
                                         .font(.headline)
-                                    Text(day.day.condition.text)
+                                    Text(viewModel.conditionText(for: day))
                                         .font(.subheadline)
-                                    Text("Температура: \(day.day.temp_c, specifier: "%.1f")°C")
-                                    Text("Ветер: \(day.day.maxwind_kph, specifier: "%.1f") км/ч")
-                                    Text("Влажность: \(day.day.avghumidity, specifier: "%.0f")%")
+                                    Text(viewModel.temperatureText(for: day))
+                                    Text(viewModel.windText(for: day))
+                                    Text(viewModel.humidityText(for: day))
                                 }
                                 Spacer()
-                                AsyncImage(url: URL(string: "https:\(day.day.condition.icon)")) { image in
-                                    image.resizable()
-                                } placeholder: {
-                                    ProgressView()
+                                if let url = viewModel.iconURL(for: day) {
+                                    AsyncImage(url: url) { image in
+                                        image.resizable()
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    .frame(width: 50, height: 50)
                                 }
-                                .frame(width: 50, height: 50)
                             }
                             .padding(.vertical, 8)
                         }
@@ -79,19 +79,10 @@ struct WeatherView: View {
             }
         }
         .onAppear {
-            viewModel.loadWeather(for: city)
+            Task {
+                await viewModel.loadWeather(for: viewModel.city)
+            }
         }
-    }
-
-    private func loadWeatherIfValid() {
-        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedCity.isEmpty else {
-            inputError = "Пожалуйста, введите название города."
-            return
-        }
-
-        inputError = nil
-        viewModel.loadWeather(for: trimmedCity)
     }
 }
 

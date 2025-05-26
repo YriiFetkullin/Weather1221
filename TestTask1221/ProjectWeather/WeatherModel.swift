@@ -16,21 +16,20 @@ struct Forecast: Codable {
 }
 
 struct ForecastDay: Codable, Identifiable {
+    var id: String { date }
     let date: String
     let day: Day
-
-    var id: String { date }
 }
 
 struct Day: Codable {
-    let temp_c: Double
-    let maxwind_kph: Double
-    let avghumidity: Double
+    let avgtemp_c: Double?
+    let maxwind_kph: Double?
+    let avghumidity: Double?
     let condition: Condition
 }
 
 struct Condition: Codable {
-    let text: String
+    let text: String?
     let icon: String
 }
 
