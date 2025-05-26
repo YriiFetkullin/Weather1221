@@ -22,10 +22,17 @@ struct ForecastDay: Codable, Identifiable {
 }
 
 struct Day: Codable {
-    let avgtemp_c: Double?
-    let maxwind_kph: Double?
-    let avghumidity: Double?
+    let avgTemp: Double?
+    let maxWind: Double?
+    let avgHumidity: Double?
     let condition: Condition
+
+    enum CodingKeys: String, CodingKey {
+        case avgTemp = "avgtemp_c"
+        case maxWind = "maxwind_kph"
+        case avgHumidity = "avghumidity"
+        case condition
+    }
 }
 
 struct Condition: Codable {

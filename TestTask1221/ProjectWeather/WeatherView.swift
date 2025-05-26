@@ -50,7 +50,7 @@ struct WeatherView: View {
                             .foregroundColor(.red)
                         Spacer()
                     } else {
-                        List(viewModel.forecast) { day in
+                        List(viewModel.forecasts) { day in
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(viewModel.dateText(for: day))

@@ -8,18 +8,18 @@
 import Foundation
 
 class WeatherViewModel: ObservableObject {
-    @Published var forecast: [ForecastDay] = []
+    @Published var forecasts: [ForecastDay] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var city: String = "Москва"
     @Published var inputError: String?
 
-    private let apiKey = "9722bbcc7f70467d92d121842252605"
+    let apiKey = "9722bbcc7f70467d92d121842252605"
 
     private let conditionTranslations: [String: String] = [
         "Sunny": "Солнечно",
         "Partly Cloudy": "Переменная облачность",
-        "Cloudy": "Облачно",
+        "Overcast": "Пасмурно",
         "Moderate rain": "Умеренный дождь",
         "Heavy rain": "Сильный дождь",
         "Patchy rain nearby": "Местами дождь",
@@ -31,10 +31,16 @@ class WeatherViewModel: ObservableObject {
     func loadWeather(for city: String) async {
         isLoading = true
         errorMessage = nil
-        forecast = []
+        forecasts = []
 
-        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
-        let urlString = "https://api.weatherapi.com/v1/forecast.json?key=\(apiKey)&q=\(trimmedCity)&days=5&aqi=no&alerts=no"
+        let baseURL = "https://api.weatherapi.com/v1/forecast.json"
+        let keyParam = "key=\(apiKey)"
+        let queryParam = "q=\(city)"
+        let daysParam = "days=5"
+        let aqiParam = "aqi=no"
+        let alertsParam = "alerts=no"
+
+        let urlString = "\(baseURL)?\(keyParam)&\(queryParam)&\(daysParam)&\(aqiParam)&\(alertsParam)"
 
         guard let url = URL(string: urlString) else {
             errorMessage = "Неверный URL"
@@ -52,7 +58,7 @@ class WeatherViewModel: ObservableObject {
             }
 
             let decoded = try JSONDecoder().decode(WeatherResponse.self, from: data)
-            forecast = decoded.forecast.forecastday
+            forecasts = decoded.forecast.forecastday
         } catch {
             errorMessage = "Ошибка: \(error.localizedDescription)"
         }
@@ -85,17 +91,17 @@ extension WeatherViewModel {
     }
 
     func temperatureText(for day: ForecastDay) -> String {
-        let value = day.day.avgtemp_c ?? 0.0
+        let value = day.day.avgTemp ?? 0.0
         return String(format: "Температура: %.1f°C", value)
     }
 
     func windText(for day: ForecastDay) -> String {
-        let value = day.day.maxwind_kph ?? 0.0
+        let value = day.day.maxWind ?? 0.0
         return String(format: "Ветер: %.1f км/ч", value)
     }
 
     func humidityText(for day: ForecastDay) -> String {
-        let value = day.day.avghumidity ?? 0.0
+        let value = day.day.avgHumidity ?? 0.0
         return String(format: "Влажность: %.0f%%", value)
     }
 
