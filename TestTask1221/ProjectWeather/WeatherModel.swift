@@ -27,6 +27,7 @@ struct Day: Codable {
     let avgHumidity: Double?
     let condition: Condition
 
+    // для сохранения стиля CamelCase
     enum CodingKeys: String, CodingKey {
         case avgTemp = "avgtemp_c"
         case maxWind = "maxwind_kph"

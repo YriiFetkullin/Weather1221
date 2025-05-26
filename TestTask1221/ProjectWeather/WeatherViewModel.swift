@@ -16,6 +16,7 @@ class WeatherViewModel: ObservableObject {
 
     let apiKey = "9722bbcc7f70467d92d121842252605"
 
+    // локализация описания погоды, приходит на инглише
     private let conditionTranslations: [String: String] = [
         "Sunny": "Солнечно",
         "Partly Cloudy": "Переменная облачность",
@@ -33,6 +34,7 @@ class WeatherViewModel: ObservableObject {
         errorMessage = nil
         forecasts = []
 
+        // компоненты URL
         let baseURL = "https://api.weatherapi.com/v1/forecast.json"
         let keyParam = "key=\(apiKey)"
         let queryParam = "q=\(city)"
@@ -65,6 +67,7 @@ class WeatherViewModel: ObservableObject {
         isLoading = false
     }
 
+    // вывод варнинга при пустом поле поиска
     @MainActor
     func loadWeatherIfValid() {
         let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -80,6 +83,7 @@ class WeatherViewModel: ObservableObject {
     }
 }
 
+// текстовые поля
 extension WeatherViewModel {
     func dateText(for day: ForecastDay) -> String {
         return day.date
